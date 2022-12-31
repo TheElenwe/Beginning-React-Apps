@@ -1,46 +1,29 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 
-import Tasks from "./components/Tasks/Tasks";
-import NewTask from "./components/NewTask/NewTask";
-import useHttp from "./hooks/use-http";
+import Header from "./components/Layout/Header";
+import Meals from "./components/Meals/Meals";
+import Cart from "./components/Cart/Cart";
+import CartProvider from "./store/CartProvider";
 
 function App() {
-  const [tasks, setTasks] = useState([]);
+  const [cartIsShown, setCartIsShown] = useState(false);
 
-  const { isLoading, error, sendRequest: fetchTasks } = useHttp();
+  const showCartHandler = () => {
+    setCartIsShown(true);
+  };
 
-  useEffect(() => {
-    const transformTasks = (task0bj) => {
-      const loadedTasks = [];
-
-      for (const taskKey in task0bj) {
-        loadedTasks.push({ id: taskKey, text: task0bj[taskKey].text });
-      }
-      setTasks(loadedTasks);
-    };
-
-    fetchTasks(
-      {
-        url: "https://react-http-dc8ba-default-rtdb.firebaseio.com/tasks.json",
-      },
-      transformTasks
-    );
-  }, [fetchTasks]);
-
-  const taskAddHandler = (task) => {
-    setTasks((prevTasks) => prevTasks.concat(task));
+  const hideCartHandler = () => {
+    setCartIsShown(false);
   };
 
   return (
-    <React.Fragment>
-      <NewTask onAddTask={taskAddHandler} />
-      <Tasks
-        items={tasks}
-        loading={isLoading}
-        error={error}
-        onFetch={fetchTasks}
-      />
-    </React.Fragment>
+    <CartProvider>
+      {cartIsShown && <Cart onClose={hideCartHandler} />}
+      <Header onShowCart={showCartHandler} />
+      <main>
+        <Meals />
+      </main>
+    </CartProvider>
   );
 }
 
